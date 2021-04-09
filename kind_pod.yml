@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kind-test
+  labels:
+    app: milvus-distributed
+    componet: kind
+spec:
+  containers:
+  - name: kind-test
+    image: gcr.io/k8s-testimages/krte:v20210319-e46e31c-1.20
+    env:
+    - name: DOCKER_IN_DOCKER_ENABLED
+      value: "true"
+    - name: GOPROXY
+      value: https://goproxy.cn
+    securityContext:
+      privileged: true
+    tty: true
+    args: ["cat"]
+    resources:
+      requests:
+        cpu: "2"
+        memory: 9000Mi
+    volumeMounts:
+    - mountPath: /docker-graph
+      name: docker-graph
+    - mountPath: /var/lib/docker
+      name: docker-root
+    - mountPath: /lib/modules
+      name: modules
+      readOnly: true
+    - mountPath: /sys/fs/cgroup
+      name: cgroup
+  volumes:
+  - emptyDir: {}
+    name: docker-graph
+  - emptyDir: {}
+    name: docker-root
+  - hostPath:
+      path: /lib/modules
+      type: Directory
+    name: modules
+  - hostPath:
+      path: /sys/fs/cgroup
+      type: Directory
+    name: cgroup
